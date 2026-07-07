@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ruang Refleksi | Hakimi & Athirah</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #0a0510;
+            --primary-glow: rgba(236, 72, 153, 0.25); /* Soft Pink/Rose */
+            --secondary-glow: rgba(139, 92, 246, 0.3); /* Violet */
+            --accent-glow: rgba(6, 182, 212, 0.2); /* Cyan hint */
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        h1, h2, h3, h4, h5, .font-space {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Ambient Background Elements - Softer and Romantic */
+        .ambient-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            z-index: -1;
+            animation: floatOrb 12s infinite ease-in-out alternate;
+        }
+        .orb-1 { width: 450px; height: 450px; background: var(--primary-glow); top: -100px; left: -100px; }
+        .orb-2 { width: 550px; height: 550px; background: var(--secondary-glow); bottom: -150px; right: -150px; animation-delay: -6s; }
+        .orb-3 { width: 300px; height: 300px; background: var(--accent-glow); top: 40%; left: 30%; animation-delay: -3s; }
+
+        @keyframes floatOrb {
+            0% { transform: translate(0, 0) scale(1); opacity: 0.7; }
+            100% { transform: translate(40px, -40px) scale(1.1); opacity: 1; }
+        }
+
+        /* Floating Light Dust (Romantic particles) */
+        .dust {
+            position: fixed;
+            background: white;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0;
+            animation: floatUp 8s linear infinite;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            20% { opacity: 0.4; }
+            80% { opacity: 0.4; }
+            100% { transform: translateY(-20vh) scale(1); opacity: 0; }
+        }
+
+        /* Glassmorphism Classes */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 1.25rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .glass-input {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-radius: 0.75rem;
+            transition: all 0.3s ease;
+        }
+        .glass-input:focus {
+            outline: none;
+            border-color: #ec4899;
+            box-shadow: 0 0 12px rgba(236, 72, 153, 0.3);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+        ::-webkit-scrollbar-thumb { background: rgba(236, 72, 153, 0.3); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(236, 72, 153, 0.6); }
+
+        /* Neon Text for Timer - Softer pinkish-white */
+        .neon-text {
+            text-shadow: 0 0 15px rgba(236, 72, 153, 0.6), 0 0 30px rgba(236, 72, 153, 0.3);
+            color: #fff0f6;
+        }
+
+        /* Tab Transitions */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        .tab-content.active { display: block; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .btn-glow {
+            transition: all 0.3s ease;
+        }
+        .btn-glow:hover {
+            box-shadow: 0 0 20px rgba(236, 72, 153, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* Image Placeholder styling */
+        .img-container {
+            position: relative;
+            width: 100%;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            background: rgba(0,0,0,0.2);
+        }
+        .img-container img {
+            width: 100%; height: auto;
+            object-fit: cover;
+            max-height: 300px;
+        }
+    </style>
+</head>
+<body class="antialiased relative">
+
+    <!-- Background Elements -->
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+    <div class="ambient-orb orb-3"></div>
+    
+    <!-- Generate particles dynamically -->
+    <div id="particles"></div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>
+
+    <div class="max-w-3xl mx-auto px-4 py-8 min-h-screen flex flex-col relative z-10">
+        
+        <!-- Header -->
+        <header class="text-center mb-10 glass-panel p-8 relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-r from-pink-500/5 to-violet-500/5 z-0"></div>
+            <h1 class="text-3xl md:text-4xl font-space font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-400 via-purple-400 to-violet-400 relative z-10">
+                Ruang Refleksi
+            </h1>
+            <p class="text-pink-200/70 mt-3 text-sm md:text-base font-light tracking-wide relative z-10">
+                Muhammad Khair Hakimi & Athirah Syazwani
+            </p>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="flex flex-wrap md:flex-nowrap gap-2 justify-center mb-8">
+            <button onclick="switchTab('tab-timer')" id="btn-tab-timer" class="nav-btn active flex items-center gap-2 px-4 py-2.5 rounded-xl bg-pink-900/30 text-pink-300 border border-pink-500/40 transition-all text-sm md:text-base font-medium shadow-[0_0_15px_rgba(236,72,153,0.15)]">
+                <i class="ph ph-hourglass-high text-lg"></i> Utama
+            </button>
+            <button onclick="switchTab('tab-aktiviti')" id="btn-tab-aktiviti" class="nav-btn flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800/40 text-slate-300 hover:bg-slate-800/60 transition-all text-sm md:text-base font-medium border border-transparent">
+                <i class="ph ph-footprints text-lg"></i> Langkah Kita
+            </button>
+            <button onclick="switchTab('tab-komunikasi')" id="btn-tab-komunikasi" class="nav-btn flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800/40 text-slate-300 hover:bg-slate-800/60 transition-all text-sm md:text-base font-medium border border-transparent">
+                <i class="ph ph-heartbeat text-lg"></i> Detik Bersama
+            </button>
+            <button onclick="switchTab('tab-luahan')" id="btn-tab-luahan" class="nav-btn flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800/40 text-slate-300 hover:bg-slate-800/60 transition-all text-sm md:text-base font-medium border border-transparent">
+                <i class="ph ph-envelope-open text-lg"></i> Bicara Hati
+            </button>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="flex-grow">
+            
+            <!-- TAB 1: TIMER -->
+            <section id="tab-timer" class="tab-content active space-y-6">
+                <!-- Quote Section -->
+                <div class="glass-panel p-8 text-center border-l-4 border-l-pink-500 relative">
+                    <i class="ph-fill ph-quotes text-4xl text-pink-500/20 absolute top-4 left-4"></i>
+                    <p class="text-lg md:text-xl font-light italic leading-relaxed text-slate-200 mt-2">
+                        "Sebulan ini untuk masing-masing renungkan. Masing-masing rasa betul, masing-masing rasa tersakiti. Semoga ruang dan masa ini mendewasakan kita, bukan menjauhkan."
+                    </p>
+                </div>
+
+                <!-- Countdown Section -->
+                <div class="glass-panel p-8 md:p-12 flex flex-col items-center justify-center relative overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-b from-transparent to-pink-900/10 z-0"></div>
+                    
+                    <h2 class="text-pink-300/80 text-sm uppercase tracking-[0.2em] mb-8 relative z-10 font-space text-center font-medium" id="timer-label">
+                        Menuju 8 Ogos 2026
+                    </h2>
+                    
+                    <div class="flex gap-4 md:gap-8 relative z-10">
+                        <div class="flex flex-col items-center">
+                            <span id="t-days" class="font-space font-bold text-5xl md:text-7xl neon-text">00</span>
+                            <span class="text-xs md:text-sm text-pink-200/60 mt-3 uppercase tracking-widest">Hari</span>
+                        </div>
+                        <span class="font-space font-light text-4xl md:text-6xl text-slate-600 self-start mt-2">:</span>
+                        <div class="flex flex-col items-center">
+                            <span id="t-hours" class="font-space font-bold text-5xl md:text-7xl neon-text">00</span>
+                            <span class="text-xs md:text-sm text-pink-200/60 mt-3 uppercase tracking-widest">Jam</span>
+                        </div>
+                        <span class="font-space font-light text-4xl md:text-6xl text-slate-600 self-start mt-2">:</span>
+                        <div class="flex flex-col items-center">
+                            <span id="t-mins" class="font-space font-bold text-5xl md:text-7xl neon-text">00</span>
+                            <span class="text-xs md:text-sm text-pink-200/60 mt-3 uppercase tracking-widest">Minit</span>
+                        </div>
+                        <span class="font-space font-light text-4xl md:text-6xl text-slate-600 self-start mt-2 hidden sm:block">:</span>
+                        <div class="flex flex-col items-center hidden sm:flex">
+                            <span id="t-secs" class="font-space font-bold text-5xl md:text-7xl neon-text">00</span>
+                            <span class="text-xs md:text-sm text-pink-200/60 mt-3 uppercase tracking-widest">Saat</span>
+                        </div>
+                    </div>
+
+                    <!-- Progress/Elapsed -->
+                    <div class="mt-12 pt-6 border-t border-white/5 w-full text-center relative z-10">
+                        <p class="text-slate-300 font-medium flex items-center justify-center gap-2">
+                            <i class="ph ph-heart text-pink-400 text-lg"></i>
+                            <span id="elapsed-days">Menanti waktu berdetak...</span>
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: AKTIVITI (Langkah Kita) -->
+            <section id="tab-aktiviti" class="tab-content space-y-6">
+                <!-- Add New Button -->
+                <div class="flex justify-between items-center glass-panel p-4">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 bg-pink-500/20 rounded-lg"><i class="ph ph-footprints text-pink-400 text-xl"></i></div>
+                        <h2 class="text-lg md:text-xl font-space font-semibold text-pink-200">Pergerakan Harian</h2>
+                    </div>
+                    <button onclick="toggleModal('modal-aktiviti')" class="bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 text-white px-5 py-2.5 rounded-lg font-medium text-sm flex items-center gap-2 btn-glow shadow-lg">
+                        <i class="ph ph-plus text-lg"></i> Kongsi
+                    </button>
+                </div>
+
+                <!-- Feed Container -->
+                <div id="aktiviti-feed" class="space-y-5">
+                    <!-- Dynamic Content -->
+                    <div class="text-center text-slate-500 py-10 italic">Belum ada langkah yang dikongsi...</div>
+                </div>
+            </section>
+
+            <!-- TAB 3: KOMUNIKASI (Detik Bersama) -->
+            <section id="tab-komunikasi" class="tab-content space-y-6">
+                <div class="flex justify-between items-center glass-panel p-4">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 bg-violet-500/20 rounded-lg"><i class="ph ph-heartbeat text-violet-400 text-xl"></i></div>
+                        <h2 class="text-lg md:text-xl font-space font-semibold text-violet-200">Detik & Suara</h2>
+                    </div>
+                    <button onclick="toggleModal('modal-komunikasi')" class="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 text-white px-5 py-2.5 rounded-lg font-medium text-sm flex items-center gap-2 btn-glow shadow-lg">
+                        <i class="ph ph-plus text-lg"></i> Rekod
+                    </button>
+                </div>
+
+                <!-- Feed Container -->
+                <div id="komunikasi-feed" class="space-y-5">
+                    <!-- Dynamic Content -->
+                    <div class="text-center text-slate-500 py-10 italic">Tiada detik yang direkodkan lagi...</div>
+                </div>
+            </section>
+
+            <!-- TAB 4: LUAHAN HATI (Bicara Hati) -->
+            <section id="tab-luahan" class="tab-content space-y-6">
+                <div class="flex justify-between items-center glass-panel p-4">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 bg-slate-600/30 rounded-lg"><i class="ph ph-envelope-open text-slate-300 text-xl"></i></div>
+                        <h2 class="text-lg md:text-xl font-space font-semibold text-slate-200">Bicara Hati</h2>
+                    </div>
+                    <button onclick="toggleModal('modal-luahan')" class="bg-slate-700 hover:bg-slate-600 text-white px-5 py-2.5 rounded-lg font-medium text-sm flex items-center gap-2 btn-glow shadow-lg">
+                        <i class="ph ph-pencil-simple text-lg"></i> Tulis
+                    </button>
+                </div>
+
+                <!-- Feed Container -->
+                <div id="luahan-feed" class="space-y-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Dynamic Content -->
+                    <div class="col-span-full text-center text-slate-500 py-10 italic">Ruangan ini menanti luahan perasaan...</div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- ================= MODALS ================= -->
+
+    <!-- Modal Aktiviti -->
+    <div id="modal-aktiviti" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300 overflow-y-auto">
+        <div class="glass-panel w-full max-w-md p-6 sm:p-8 transform scale-95 transition-transform duration-300 my-8">
+            <div class="flex justify-between items-center mb-6 border-b border-white/10 pb-4">
+                <h3 class="text-xl font-space font-semibold text-pink-300 flex items-center gap-2"><i class="ph ph-footprints"></i> Kemas Kini Langkah</h3>
+                <button type="button" onclick="toggleModal('modal-aktiviti')" class="text-slate-400 hover:text-white transition-colors bg-white/5 p-1 rounded-full"><i class="ph ph-x text-lg"></i></button>
+            </div>
+            <form id="form-aktiviti" class="space-y-5">
+                <div>
+                    <label class="block text-xs text-pink-200/70 mb-1.5 uppercase tracking-wider">Ke Mana Hari Ini?</label>
+                    <input type="text" id="act-lokasi" required class="w-full p-3 glass-input text-sm" placeholder="Cth: Mid Valley / Tempat Kerja">
+                </div>
+                <div>
+                    <label class="block text-xs text-pink-200/70 mb-1.5 uppercase tracking-wider">Tujuan / Urusan</label>
+                    <input type="text" id="act-urusan" required class="w-full p-3 glass-input text-sm" placeholder="Cth: Singgah beli barang sikit">
+                </div>
+                <div>
+                    <label class="block text-xs text-pink-200/70 mb-1.5 uppercase tracking-wider">Bersama Siapa</label>
+                    <input type="text" id="act-siapa" required class="w-full p-3 glass-input text-sm" placeholder="Cth: Kawan tempat kerja">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs text-pink-200/70 mb-1.5 uppercase tracking-wider">Tarikh</label>
+                        <input type="date" id="act-tarikh" required class="w-full p-3 glass-input text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-pink-200/70 mb-1.5 uppercase tracking-wider">Masa</label>
+                        <input type="time" id="act-masa" required class="w-full p-3 glass-input text-sm">
+                    </div>
+                </div>
+                
+                <!-- NEW: Direct Image Upload -->
+                <div class="bg-black/20 p-4 rounded-xl border border-white/5">
+                    <label class="block text-xs text-pink-200/70 mb-2 uppercase tracking-wider">Selitkan Gambar (Pilihan)</label>
+                    <input type="file" id="act-gambar-file" accept="image/jpeg, image/png, image/webp, image/jpg" class="w-full text-sm text-slate-300 
+                        file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 
+                        file:text-xs file:font-semibold file:bg-pink-500/20 file:text-pink-300 
+                        hover:file:bg-pink-500/30 transition-all cursor-pointer">
+                    
+                    <!-- Preview Container -->
+                    <div id="act-gambar-preview" class="hidden mt-4 img-container border border-slate-700/50"></div>
+                </div>
+
+                <button type="submit" class="w-full bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 text-white py-3.5 rounded-xl font-medium transition-colors mt-4 shadow-[0_4px_20px_rgba(236,72,153,0.3)]">
+                    Simpan Pergerakan
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Komunikasi -->
+    <div id="modal-komunikasi" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300 overflow-y-auto">
+        <div class="glass-panel w-full max-w-md p-6 sm:p-8 transform scale-95 transition-transform duration-300 my-8">
+            <div class="flex justify-between items-center mb-6 border-b border-white/10 pb-4">
+                <h3 class="text-xl font-space font-semibold text-violet-300 flex items-center gap-2"><i class="ph ph-heartbeat"></i> Rekod Detik Bersama</h3>
+                <button type="button" onclick="toggleModal('modal-komunikasi')" class="text-slate-400 hover:text-white transition-colors bg-white/5 p-1 rounded-full"><i class="ph ph-x text-lg"></i></button>
+            </div>
+            <form id="form-komunikasi" class="space-y-5">
+                <div>
+                    <label class="block text-xs text-violet-200/70 mb-1.5 uppercase tracking-wider">Jenis Detik</label>
+                    <select id="com-jenis" class="w-full p-3 glass-input text-sm">
+                        <option value="Call">📞 Panggilan Suara / Video</option>
+                        <option value="Jumpa">☕ Terjumpa / Perjumpaan</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs text-violet-200/70 mb-1.5 uppercase tracking-wider">Tujuan / Bual Apa?</label>
+                    <input type="text" id="com-urusan" required class="w-full p-3 glass-input text-sm" placeholder="Cth: Tanya khabar ringkas">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs text-violet-200/70 mb-1.5 uppercase tracking-wider">Tarikh</label>
+                        <input type="date" id="com-tarikh" required class="w-full p-3 glass-input text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-violet-200/70 mb-1.5 uppercase tracking-wider">Masa</label>
+                        <input type="time" id="com-masa" required class="w-full p-3 glass-input text-sm">
+                    </div>
+                </div>
+                
+                <!-- NEW: Direct Image Upload -->
+                <div class="bg-black/20 p-4 rounded-xl border border-white/5">
+                    <label class="block text-xs text-violet-200/70 mb-2 uppercase tracking-wider">Screenshot Call / Gambar (Pilihan)</label>
+                    <input type="file" id="com-gambar-file" accept="image/jpeg, image/png, image/webp, image/jpg" class="w-full text-sm text-slate-300 
+                        file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 
+                        file:text-xs file:font-semibold file:bg-violet-500/20 file:text-violet-300 
+                        hover:file:bg-violet-500/30 transition-all cursor-pointer">
+                    
+                    <!-- Preview Container -->
+                    <div id="com-gambar-preview" class="hidden mt-4 img-container border border-slate-700/50"></div>
+                </div>
+
+                <button type="submit" class="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 text-white py-3.5 rounded-xl font-medium transition-colors mt-4 shadow-[0_4px_20px_rgba(139,92,246,0.3)]">
+                    Simpan Memori
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Luahan -->
+    <div id="modal-luahan" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300 overflow-y-auto">
+        <div class="glass-panel w-full max-w-lg p-6 sm:p-8 transform scale-95 transition-transform duration-300 my-8">
+            <div class="flex justify-between items-center mb-6 border-b border-white/10 pb-4">
+                <h3 class="text-xl font-space font-semibold text-slate-200 flex items-center gap-2"><i class="ph ph-envelope-open"></i> Bicara Hati</h3>
+                <button type="button" onclick="toggleModal('modal-luahan')" class="text-slate-400 hover:text-white transition-colors bg-white/5 p-1 rounded-full"><i class="ph ph-x text-lg"></i></button>
+            </div>
+            <form id="form-luahan" class="space-y-5">
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1.5 uppercase tracking-wider">Coretan Hari Ini</label>
+                    <textarea id="luah-kandungan" required rows="6" class="w-full p-4 glass-input text-sm resize-none leading-relaxed" placeholder="Tulis apa sahaja yang terbuku di hati... untuk awak, atau untuk saya."></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1.5 uppercase tracking-wider">Tarikh</label>
+                        <input type="date" id="luah-tarikh" required class="w-full p-3 glass-input text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1.5 uppercase tracking-wider">Masa</label>
+                        <input type="time" id="luah-masa" required class="w-full p-3 glass-input text-sm">
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-slate-700 hover:bg-slate-600 text-white py-3.5 rounded-xl font-medium transition-colors mt-4">
+                    Simpan Luahan
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global Variables
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'ruang-refleksi-app-v2';
+        let db, auth, currentUser;
+
+        // Generate Particles for romantic feel
+        const particleContainer = document.getElementById('particles');
+        for(let i=0; i<15; i++) {
+            let p = document.createElement('div');
+            p.className = 'dust';
+            p.style.left = Math.random() * 100 + 'vw';
+            p.style.width = Math.random() * 4 + 1 + 'px';
+            p.style.height = p.style.width;
+            p.style.animationDelay = Math.random() * 8 + 's';
+            p.style.animationDuration = Math.random() * 10 + 10 + 's';
+            particleContainer.appendChild(p);
+        }
+
+        // Custom Toast Notification
+        window.showToast = function(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const bgColor = type === 'error' ? 'bg-red-500/80 border-red-500' : 'bg-pink-600/80 border-pink-500';
+            const icon = type === 'error' ? 'ph-warning-circle' : 'ph-check-circle';
+
+            toast.className = `flex items-center gap-3 p-4 rounded-xl border backdrop-blur-md text-white shadow-lg transform transition-all duration-300 translate-x-full opacity-0 ${bgColor}`;
+            toast.innerHTML = `
+                <i class="ph ${icon} text-xl"></i>
+                <p class="text-sm font-medium">${message}</p>
+            `;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => { toast.classList.remove('translate-x-full', 'opacity-0'); }, 10);
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-x-full');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        };
+
+        // UI Interactions
+        window.switchTab = function(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(el => {
+                el.className = 'nav-btn flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800/40 text-slate-300 hover:bg-slate-800/60 transition-all text-sm md:text-base font-medium border border-transparent';
+            });
+
+            document.getElementById(tabId).classList.add('active');
+            const btn = document.getElementById('btn-' + tabId);
+
+            if(tabId === 'tab-timer') {
+                btn.className = 'nav-btn active flex items-center gap-2 px-4 py-2.5 rounded-xl bg-pink-900/30 text-pink-300 border border-pink-500/40 transition-all text-sm md:text-base font-medium shadow-[0_0_15px_rgba(236,72,153,0.15)]';
+            } else if (tabId === 'tab-aktiviti') {
+                btn.className = 'nav-btn active flex items-center gap-2 px-4 py-2.5 rounded-xl bg-pink-900/30 text-pink-300 border border-pink-500/40 transition-all text-sm md:text-base font-medium shadow-[0_0_15px_rgba(236,72,153,0.15)]';
+            } else if (tabId === 'tab-komunikasi') {
+                btn.className = 'nav-btn active flex items-center gap-2 px-4 py-2.5 rounded-xl bg-violet-900/30 text-violet-300 border border-violet-500/40 transition-all text-sm md:text-base font-medium shadow-[0_0_15px_rgba(139,92,246,0.15)]';
+            } else if (tabId === 'tab-luahan') {
+                btn.className = 'nav-btn active flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-700/50 text-white border border-slate-500/50 transition-all text-sm md:text-base font-medium shadow-[0_0_15px_rgba(255,255,255,0.05)]';
+            }
+        };
+
+        window.toggleModal = function(modalId) {
+            const modal = document.getElementById(modalId);
+            const content = modal.querySelector('div');
+            
+            if (modal.classList.contains('hidden')) {
+                const now = new Date();
+                const d = now.toISOString().split('T')[0];
+                const t = now.toTimeString().slice(0,5);
+                
+                if(modalId === 'modal-aktiviti') { document.getElementById('act-tarikh').value = d; document.getElementById('act-masa').value = t; }
+                if(modalId === 'modal-komunikasi') { document.getElementById('com-tarikh').value = d; document.getElementById('com-masa').value = t; }
+                if(modalId === 'modal-luahan') { document.getElementById('luah-tarikh').value = d; document.getElementById('luah-masa').value = t; }
+
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    modal.classList.remove('opacity-0');
+                    content.classList.remove('scale-95');
+                }, 10);
+            } else {
+                modal.classList.add('opacity-0');
+                content.classList.add('scale-95');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    
+                    // Reset forms and previews on close
+                    const form = modal.querySelector('form');
+                    if(form) form.reset();
+                    const preview = modal.querySelector('.img-container');
+                    if(preview) {
+                        preview.innerHTML = '';
+                        preview.classList.add('hidden');
+                    }
+                }, 300);
+            }
+        };
+
+        // --- Image Compression & Preview Logic ---
+        function setupImageUpload(fileInputId, previewId) {
+            const input = document.getElementById(fileInputId);
+            const preview = document.getElementById(previewId);
+            
+            input.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(evt) {
+                        preview.innerHTML = `<img src="${evt.target.result}" alt="Preview">`;
+                        preview.classList.remove('hidden');
+                    }
+                    reader.readAsDataURL(file);
+                } else {
+                    preview.innerHTML = '';
+                    preview.classList.add('hidden');
+                }
+            });
+        }
+
+        setupImageUpload('act-gambar-file', 'act-gambar-preview');
+        setupImageUpload('com-gambar-file', 'com-gambar-preview');
+
+        // Function to compress image before saving to DB
+        async function compressImage(file) {
+            if (!file) return null;
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+                        const max_size = 600; // Dikurangkan dari 800 untuk elak DB penuh/stuck
+                        
+                        if (width > height && width > max_size) {
+                            height *= max_size / width;
+                            width = max_size;
+                        } else if (height > max_size) {
+                            width *= max_size / height;
+                            height = max_size;
+                        }
+                        
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        // Output as compressed JPEG base64 (60% quality instead of 70%)
+                        const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+                        
+                        // Pastikan saiz base64 tidak melebihi had Firestore (~1MB)
+                        if (dataUrl.length > 800000) {
+                            reject(new Error("Gambar terlalu besar walaupun dimampatkan. Sila crop atau guna gambar lain."));
+                        } else {
+                            resolve(dataUrl); 
+                        }
+                    };
+                    img.onerror = () => reject(new Error("Gagal memproses gambar. Pastikan format adalah JPG/PNG."));
+                    img.src = e.target.result;
+                };
+                reader.onerror = () => reject(new Error("Gagal membaca fail gambar."));
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Timer Logic
+        const startDate = new Date('2026-07-08T00:00:00+08:00').getTime();
+        const endDate = new Date('2026-08-08T00:00:00+08:00').getTime();
+
+        function updateTimer() {
+            const now = new Date().getTime();
+            let timeDiff = endDate - now;
+            let countUpDiff = now - startDate;
+            
+            const timerLabel = document.getElementById('timer-label');
+            const elapsedDaysEl = document.getElementById('elapsed-days');
+
+            if (now < startDate) {
+                timerLabel.innerText = "Bermula 8 Julai 2026";
+                timeDiff = startDate - now;
+                elapsedDaysEl.innerText = "Ruang sebulan belum bermula...";
+            } else if (now >= endDate) {
+                timerLabel.innerText = "Tempoh Sebulan Telah Tamat";
+                timeDiff = 0;
+                const totalDays = Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24));
+                elapsedDaysEl.innerText = `Cukup ${totalDays} hari ruang ini berlalu.`;
+            } else {
+                timerLabel.innerText = "Menuju 8 Ogos 2026";
+                const daysPassed = Math.floor(countUpDiff / (1000 * 60 * 60 * 24));
+                elapsedDaysEl.innerHTML = `Sudah <b>${daysPassed} hari</b> kita dalam ruang ini...`;
+            }
+
+            const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+
+            document.getElementById('t-days').innerText = String(days).padStart(2, '0');
+            document.getElementById('t-hours').innerText = String(hours).padStart(2, '0');
+            document.getElementById('t-mins').innerText = String(minutes).padStart(2, '0');
+            document.getElementById('t-secs').innerText = String(seconds).padStart(2, '0');
+        }
+
+        setInterval(updateTimer, 1000);
+        updateTimer();
+
+        // Firebase Setup
+        try {
+            const firebaseConfig = {
+              apiKey: "AIzaSyDcVwkPR9ps4iqfo2mAkvc7AQNkyXloK0Q",
+              authDomain: "relationship-9db5b.firebaseapp.com",
+              projectId: "relationship-9db5b",
+              storageBucket: "relationship-9db5b.firebasestorage.app",
+              messagingSenderId: "930184334118",
+              appId: "1:930184334118:web:c83e86222e9e0c8359cfe7",
+              measurementId: "G-FMGXK7WB4R"
+            };
+
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+
+            const initAuth = async () => {
+                const token = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+                if (token) {
+                    await signInWithCustomToken(auth, token).catch(e => signInAnonymously(auth));
+                } else {
+                    await signInAnonymously(auth);
+                }
+            };
+            initAuth();
+
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    currentUser = user;
+                    setupRealtimeListeners();
+                }
+            });
+        } catch (error) {
+            console.error("Firebase Init Error:", error);
+            showToast("Mod luar talian. Data tidak akan disimpan.", "error");
+        }
+
+        function formatDateTimeDisplay(dateStr, timeStr) {
+            const d = new Date(`${dateStr}T${timeStr}`);
+            const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const datePart = d.toLocaleDateString('ms-MY', optionsDate);
+            let hours = d.getHours();
+            let minutes = d.getMinutes();
+            let ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12; hours = hours ? hours : 12; 
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            return `${datePart} | ${hours}:${minutes} ${ampm}`;
+        }
+
+        function setupRealtimeListeners() {
+            if(!currentUser) return;
+
+            const actRef = collection(db, 'artifacts', appId, 'public', 'data', 'activities');
+            const comRef = collection(db, 'artifacts', appId, 'public', 'data', 'communications');
+            const luahRef = collection(db, 'artifacts', appId, 'public', 'data', 'journals');
+
+            onSnapshot(actRef, (snapshot) => {
+                const data = []; snapshot.forEach(doc => data.push({id: doc.id, ...doc.data()}));
+                data.sort((a, b) => b.timestamp - a.timestamp); renderActivities(data);
+            });
+
+            onSnapshot(comRef, (snapshot) => {
+                const data = []; snapshot.forEach(doc => data.push({id: doc.id, ...doc.data()}));
+                data.sort((a, b) => b.timestamp - a.timestamp); renderComms(data);
+            });
+
+            onSnapshot(luahRef, (snapshot) => {
+                const data = []; snapshot.forEach(doc => data.push({id: doc.id, ...doc.data()}));
+                data.sort((a, b) => b.timestamp - a.timestamp); renderJournals(data);
+            });
+        }
+
+        function renderActivities(data) {
+            const container = document.getElementById('aktiviti-feed');
+            if(data.length === 0) {
+                container.innerHTML = '<div class="text-center text-slate-500 py-10 italic">Belum ada langkah yang dikongsi.</div>';
+                return;
+            }
+            container.innerHTML = data.map(item => `
+                <div class="glass-panel p-6 border-l-[3px] border-l-pink-500 hover:bg-white/5 transition-colors relative overflow-hidden group">
+                    <div class="absolute -right-10 -top-10 opacity-5 group-hover:opacity-10 transition-opacity">
+                        <i class="ph-fill ph-footprints text-9xl text-pink-500"></i>
+                    </div>
+                    <div class="flex justify-between items-start mb-4 relative z-10">
+                        <div>
+                            <h4 class="text-lg md:text-xl font-semibold text-pink-100">${item.lokasi}</h4>
+                            <p class="text-xs text-pink-300/70 mt-1.5 flex items-center gap-1.5"><i class="ph ph-clock"></i> ${formatDateTimeDisplay(item.tarikh, item.masa)}</p>
+                        </div>
+                    </div>
+                    <div class="space-y-2.5 mt-3 text-sm text-slate-300 relative z-10 bg-black/20 p-4 rounded-xl border border-white/5">
+                        <p class="flex items-start gap-2"><i class="ph ph-note-pencil text-pink-400 mt-0.5"></i> <span class="text-slate-200">${item.urusan}</span></p>
+                        <p class="flex items-start gap-2"><i class="ph ph-users text-pink-400 mt-0.5"></i> <span class="text-slate-400">Bersama:</span> <span class="text-slate-200">${item.siapa}</span></p>
+                    </div>
+                    ${item.gambar ? `
+                    <div class="mt-4 img-container rounded-xl border border-white/10 relative z-10 shadow-lg">
+                        <img src="${item.gambar}" alt="Gambar Memori">
+                    </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        function renderComms(data) {
+            const container = document.getElementById('komunikasi-feed');
+            if(data.length === 0) {
+                container.innerHTML = '<div class="text-center text-slate-500 py-10 italic">Tiada detik yang direkodkan lagi.</div>';
+                return;
+            }
+            container.innerHTML = data.map(item => {
+                const isCall = item.jenis === 'Call';
+                const color = isCall ? 'blue' : 'violet';
+                return `
+                <div class="glass-panel p-6 border-l-[3px] border-l-${color}-500 hover:bg-white/5 transition-colors">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="p-3 bg-${color}-500/20 rounded-xl text-${color}-400 shadow-inner">
+                            <i class="ph ${isCall ? 'ph-phone-call' : 'ph-coffee'} text-2xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-semibold text-slate-100">${item.jenis === 'Call' ? 'Panggilan Suara/Video' : 'Perjumpaan'}</h4>
+                            <p class="text-xs text-slate-400 mt-1 flex items-center gap-1"><i class="ph ph-clock"></i> ${formatDateTimeDisplay(item.tarikh, item.masa)}</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-200 mt-2 bg-black/20 p-4 rounded-xl border border-white/5 italic font-light">
+                        "${item.urusan}"
+                    </p>
+                    ${item.gambar ? `
+                    <div class="mt-4 img-container rounded-xl border border-white/10 shadow-lg">
+                        <img src="${item.gambar}" alt="Gambar Bukti">
+                    </div>
+                    ` : ''}
+                </div>
+                `;
+            }).join('');
+        }
+
+        function renderJournals(data) {
+            const container = document.getElementById('luahan-feed');
+            if(data.length === 0) {
+                container.innerHTML = '<div class="col-span-full text-center text-slate-500 py-10 italic">Ruangan ini menanti luahan perasaan.</div>';
+                return;
+            }
+            container.innerHTML = data.map(item => `
+                <div class="glass-panel p-6 flex flex-col justify-between hover:border-slate-500/50 transition-colors relative overflow-hidden group">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-slate-600/50 group-hover:bg-slate-400/50 transition-colors"></div>
+                    <i class="ph-fill ph-quotes text-3xl text-slate-600/30 mb-2"></i>
+                    <p class="text-slate-200 text-sm whitespace-pre-wrap leading-relaxed font-light pl-2">"${item.kandungan}"</p>
+                    <div class="mt-5 pt-4 border-t border-white/5 text-xs text-slate-500 text-right font-medium">
+                        ${formatDateTimeDisplay(item.tarikh, item.masa)}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // --- Form Submissions ---
+
+        document.getElementById('form-aktiviti').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if(!currentUser) { showToast("Sila tunggu sehingga sistem sedia.", "error"); return; }
+            
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            btn.disabled = true; btn.innerHTML = '<i class="ph ph-spinner animate-spin"></i> Menyimpan...';
+
+            try {
+                const fileInput = document.getElementById('act-gambar-file');
+                let base64Image = null;
+                if (fileInput.files.length > 0) {
+                    base64Image = await compressImage(fileInput.files[0]);
+                }
+
+                const data = {
+                    lokasi: document.getElementById('act-lokasi').value,
+                    urusan: document.getElementById('act-urusan').value,
+                    siapa: document.getElementById('act-siapa').value,
+                    tarikh: document.getElementById('act-tarikh').value,
+                    masa: document.getElementById('act-masa').value,
+                    gambar: base64Image, // Save base64 directly
+                    timestamp: Date.now(),
+                    userId: currentUser.uid
+                };
+                
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'activities'), data);
+                
+                toggleModal('modal-aktiviti');
+                showToast("Langkah selamat disimpan.");
+            } catch (err) {
+                console.error(err); 
+                const errMsg = err.message || "Gagal menyimpan data.";
+                showToast(errMsg, "error");
+            } finally {
+                btn.disabled = false; btn.innerHTML = originalText;
+            }
+        });
+
+        document.getElementById('form-komunikasi').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if(!currentUser) { showToast("Sila tunggu sehingga sistem sedia.", "error"); return; }
+            
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            btn.disabled = true; btn.innerHTML = '<i class="ph ph-spinner animate-spin"></i> Menyimpan...';
+
+            try {
+                const fileInput = document.getElementById('com-gambar-file');
+                let base64Image = null;
+                if (fileInput.files.length > 0) {
+                    base64Image = await compressImage(fileInput.files[0]);
+                }
+
+                const data = {
+                    jenis: document.getElementById('com-jenis').value,
+                    urusan: document.getElementById('com-urusan').value,
+                    tarikh: document.getElementById('com-tarikh').value,
+                    masa: document.getElementById('com-masa').value,
+                    gambar: base64Image,
+                    timestamp: Date.now(),
+                    userId: currentUser.uid
+                };
+                
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'communications'), data);
+                
+                toggleModal('modal-komunikasi');
+                showToast("Detik bersama direkodkan.");
+            } catch (err) {
+                console.error(err); 
+                const errMsg = err.message || "Gagal menyimpan data.";
+                showToast(errMsg, "error");
+            } finally {
+                btn.disabled = false; btn.innerHTML = originalText;
+            }
+        });
+
+        document.getElementById('form-luahan').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if(!currentUser) { showToast("Sila tunggu sehingga sistem sedia.", "error"); return; }
+            
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            btn.disabled = true; btn.innerHTML = '<i class="ph ph-spinner animate-spin"></i> Menyimpan...';
+
+            try {
+                const data = {
+                    kandungan: document.getElementById('luah-kandungan').value,
+                    tarikh: document.getElementById('luah-tarikh').value,
+                    masa: document.getElementById('luah-masa').value,
+                    timestamp: Date.now(),
+                    userId: currentUser.uid
+                };
+                
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'journals'), data);
+                
+                toggleModal('modal-luahan');
+                showToast("Bicara hati selamat disimpan.");
+            } catch (err) {
+                console.error(err); 
+                const errMsg = err.message || "Gagal menyimpan luahan.";
+                showToast(errMsg, "error");
+            } finally {
+                btn.disabled = false; btn.innerHTML = originalText;
+            }
+        });
+
+    </script>
+</body>
+</html>
